@@ -1,4 +1,0 @@
-[submodule "software/tiny-kino-key-soft/src/shiftregister_switchscanner"]
-	path = software/tiny-kino-key-soft/src/shiftregister_switchscanner
-	url = https://github.com/kinoshita-lab/shiftregister_switchscanner
-	branch = main
