@@ -23,9 +23,10 @@ void setup()
 {
     Serial.begin(115200);
 
+    application::initialize();
     // start timer
     add_repeating_timer_us(config::kApplicationTimerIntervalUs, timer_callback, NULL, &timer);
-    application::initialize();
+
 }
 
 void loop()

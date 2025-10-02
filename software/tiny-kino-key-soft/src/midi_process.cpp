@@ -65,4 +65,24 @@ void sendNoteOff(uint8_t note, uint8_t velocity, uint8_t channel)
     MIDI_USB.sendNoteOff(note, velocity, channel);
     MIDI_Serial.sendNoteOff(note, velocity, channel);
 }
+void sendMoulation(bool on, uint8_t channel)
+{
+    const auto value = on ? 127 : 0;
+    MIDI_USB.sendControlChange(1, value, channel);
+    MIDI_Serial.sendControlChange(1, value, channel);
+}
+void sendPitchBend(int16_t value, uint8_t channel)
+{
+    if (value < -8192 || value > 8191 || channel < 1 || channel > 16) {
+        return;
+    }
+    MIDI_USB.sendPitchBend(value, channel);
+    MIDI_Serial.sendPitchBend(value, channel);
+}
+void sendSustain(bool on, uint8_t channel)
+{
+    const auto value = on ? 127 : 0;
+    MIDI_USB.sendControlChange(64, value, channel);
+    MIDI_Serial.sendControlChange(64, value, channel);
+}
 }

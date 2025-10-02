@@ -24,6 +24,9 @@ enum
     kMidiChannel = 1,  // TODO: make it configurable via NRPN
 };
 
+// Pitch Bend configuration
+constexpr int pitch_bend_time = 250; // ms to reach from center to max/min TODO: make it configurable via NRPN
+
 // Keyboard basic configuration
 enum
 {

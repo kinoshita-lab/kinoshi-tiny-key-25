@@ -17,6 +17,9 @@ void loop();
 
 void sendNoteOn(uint8_t note, uint8_t velocity, uint8_t channel);
 void sendNoteOff(uint8_t note, uint8_t velocity, uint8_t channel);
+void sendMoulation(bool on, uint8_t channel);
+void sendPitchBend(int16_t value, uint8_t channel);
+void sendSustain(bool on, uint8_t channel);
 }  // namespace kinoshita_lab::tiny_kino_key_25::midi_process
 
 #endif  // MIDI_H
