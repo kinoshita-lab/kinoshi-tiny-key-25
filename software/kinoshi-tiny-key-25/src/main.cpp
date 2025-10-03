@@ -9,7 +9,7 @@
 #include <pico/stdlib.h>
 #include "application.h"
 #include "config.h"
-using namespace kinoshita_lab::tiny_kino_key_25;
+using namespace kinoshita_lab::kinoshi_tiny_key_25;
 
 // timer callbacks
 struct repeating_timer timer;
@@ -31,5 +31,5 @@ void setup()
 
 void loop()
 {
-    kinoshita_lab::tiny_kino_key_25::application::loop();
+    kinoshita_lab::kinoshi_tiny_key_25::application::loop();
 }

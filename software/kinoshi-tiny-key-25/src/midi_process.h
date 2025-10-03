@@ -10,7 +10,7 @@
 
 #include <cstdint>
 
-namespace kinoshita_lab::tiny_kino_key_25::midi_process
+namespace kinoshita_lab::kinoshi_tiny_key_25::midi_process
 {
 void initialize();
 void loop();

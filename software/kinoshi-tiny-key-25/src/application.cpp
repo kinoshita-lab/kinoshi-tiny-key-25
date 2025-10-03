@@ -17,7 +17,7 @@ extern "C" {
 #include "pico/bootrom.h"
 }
 
-namespace kinoshita_lab::tiny_kino_key_25::application
+namespace kinoshita_lab::kinoshi_tiny_key_25::application
 {
 namespace
 {

@@ -10,13 +10,13 @@
 
 #include <cstdint>
 #include "leds.h"
-namespace kinoshita_lab::tiny_kino_key_25::config
+namespace kinoshita_lab::kinoshi_tiny_key_25::config
 {
 // USB configuration
 constexpr char kUsbManufacturerString[]   = "Kinoshita Laboratory";
-constexpr char kUsbProductDescriptor[]    = "Tiny KinoKey 25";
+constexpr char kUsbProductDescriptor[]    = "Kinoshi-Tiny Key 25";
 constexpr char kUsbSerialDescriptor[]     = "0xdeadbeef";
-constexpr char kUsbMidiStringDescriptor[] = "Kinoshita Lab. Tiny KinoKey 25";
+constexpr char kUsbMidiStringDescriptor[] = "Kinoshi-Tiny Key 25";
 
 // MIDI configuration
 enum

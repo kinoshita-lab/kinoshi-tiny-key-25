@@ -12,7 +12,7 @@
 #include <cstdlib>
 #include <Arduino.h>
 #include <functional>
-namespace kinoshita_lab::tiny_kino_key_25::switches
+namespace kinoshita_lab::kinoshi_tiny_key_25::switches
 {
 // product specific switch scanner
 class Switches
