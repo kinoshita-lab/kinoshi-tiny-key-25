@@ -16,7 +16,7 @@ namespace kinoshita_lab::kinoshi_tiny_key_25::config
 constexpr char kUsbManufacturerString[]   = "Kinoshita Laboratory";
 constexpr char kUsbProductDescriptor[]    = "Kinoshi-Tiny Key 25";
 constexpr char kUsbSerialDescriptor[]     = "0xdeadbeef";
-constexpr char kUsbMidiStringDescriptor[] = "Kinoshi-Tiny Key 25";
+constexpr char kUsbMidiStringDescriptor[] = "Kinoshi-Tiny Key 25"; // TODO: bug? long desciptor stops USB functionality. should investigate.
 
 // MIDI configuration
 enum
