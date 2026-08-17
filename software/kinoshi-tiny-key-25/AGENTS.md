@@ -75,12 +75,27 @@ Notes:
 - On initialization, if Modulation + OctMinus are both ON, enter UF2 boot mode (`reset_usb_boot` equivalent).
 
 ## Coding conventions
-- Namespace: `kinoshita_lab::kinoshi_tiny_key_25::<module>`
-- Constants use the `k` prefix: `kPin…`, `kSwitchId…`, `kNum…`
-- Include guard style: `#pragma once` + `<NAME>_H` (e.g. `LEDS_H`)
-- Formatting follows `.clang-format` (`Google`-based, 4-space indentation, `ColumnLimit: 0`)
+- **Follow the Google C++ Style Guide.** Unless this file explicitly states otherwise, all C++ code in this directory must comply with the Google C++ Style Guide (https://google.github.io/styleguide/cppguide.html).
+- Formatting is enforced mechanically by `.clang-format` (`BasedOnStyle: Google`, 4-space indentation, `ColumnLimit: 0`, include sorting disabled).
+- Namespace: `kinoshita_lab::kinoshi_tiny_key_25::<module>` (module names are snake_case: `application`, `midi_process`, `device_config`, …)
 - Keep changes small and incremental.
 - Commit messages should be brief and English-oriented when possible; use an area prefix such as `[firmware]` and close issues with `Fixes #N` when appropriate.
+
+### Naming conventions
+All C++ code follows the naming rules of the Google C++ Style Guide. The table below is a quick-reference summary of those rules as they apply to this codebase; it does not replace the guide. When in doubt, check the guide first.
+
+| Element | Convention | Examples |
+|---|---|---|
+| Source files | `snake_case` (`.cpp` / `.h`; header and implementation share the same base name) | `midi_process.{h,cpp}`, `device_config.h`, `switch.hpp` |
+| Include guards | `#pragma once` + ALL_CAPS guard derived from the file name | `DEVICE_CONFIG_H`, `LEDS_H`, `SWITCH_HPP` |
+| Constants (`constexpr`, enum values) | `k` prefix + PascalCase | `kPinPl`, `kNumKeyboardKeys`, `kDefaultOctave`, `kMidiChannel` |
+| Functions | Mixed case (existing code uses lowerCamelCase) | `setOctaveLed()`, `sendNoteOn()`, `switchStateChanged()` |
+| Local variables, parameters, struct fields | snake_case | `current_octave`, `pitch_bend_value`, `switch_index`, `off_on` |
+| Types (struct / class / enum) | PascalCase | `Switches`, `KeyboardStatus`, `Color` |
+| Namespaces | snake_case | `application`, `leds`, `midi_process`, `device_config` |
+
+Notes:
+- Do not introduce new mixed-style names such as `DeviceConfig.h`; new headers must be snake_case (`device_config.h`).
 
 ## Working rules
 - Follow the repository workflow: plan first, then implement, then validate.
