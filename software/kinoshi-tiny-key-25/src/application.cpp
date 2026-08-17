@@ -12,6 +12,7 @@
 #include "switch.hpp"
 #include "midi_process.h"
 #include "pins.h"
+#include "user_config.h"
 
 extern "C" {
 #include "pico/bootrom.h"
@@ -103,15 +104,15 @@ void processKeyboard()
                 constexpr int num_note_per_octave           = 12;
                 const auto on_note_number                   = (status_.current_octave + 1) * num_note_per_octave + i;
                 status_.keyboard_status[i].noteOnNoteNumber = on_note_number;
-                midi_process::sendNoteOn(on_note_number, status_.noteon_velocity, device_config::kMidiChannel);
+                midi_process::sendNoteOn(on_note_number, status_.noteon_velocity, user_config::config.midi_channel);
                 Serial.printf("Note On sent: note=%d, velocity=%d, channel=%d\n",
-                              on_note_number, status_.noteon_velocity, device_config::kMidiChannel);
+                              on_note_number, status_.noteon_velocity, user_config::config.midi_channel);
             } else {  // off
                 const auto off_note_number = status_.keyboard_status[i].noteOnNoteNumber;
                 if (off_note_number >= 0) {
-                    midi_process::sendNoteOff(off_note_number, 0, device_config::kMidiChannel);
+                    midi_process::sendNoteOff(off_note_number, 0, user_config::config.midi_channel);
                     Serial.printf("Note Off sent: note=%d, velocity=0, channel=%d\n",
-                                  off_note_number, device_config::kMidiChannel);
+                                  off_note_number, user_config::config.midi_channel);
                     status_.keyboard_status[i].noteOnNoteNumber = -1;
                 }
             }
@@ -131,10 +132,10 @@ void switchStateChanged(uint32_t switch_index, const int off_on)
         }
             return;
         case switches::Switches::kSwitchIdSustain:
-            midi_process::sendSustain(off_on != 0, device_config::kMidiChannel);
+            midi_process::sendSustain(off_on != 0, user_config::config.midi_channel);
             return;
         case switches::Switches::kSwitchIdModulation:
-            midi_process::sendMoulation(off_on != 0, device_config::kMidiChannel);
+            midi_process::sendMoulation(off_on != 0, user_config::config.midi_channel);
             return;
         case switches::Switches::kSwitchIdPitchBendPlus:
             status_.pitch_bend_direction   = off_on ? 1 : 0;
@@ -184,7 +185,7 @@ void processPitchBend()
         status_.pitch_bend_value = 0;  // reset to center when stopped
     }
 
-    midi_process::sendPitchBend(status_.pitch_bend_value, device_config::kMidiChannel);
+    midi_process::sendPitchBend(status_.pitch_bend_value, user_config::config.midi_channel);
 }
 
 void processTimerTick()

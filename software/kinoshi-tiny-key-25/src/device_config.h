@@ -18,12 +18,6 @@ constexpr char kUsbProductDescriptor[]    = "Kinoshi-Tiny Key 25";
 constexpr char kUsbSerialDescriptor[]     = "0xdeadbeef";
 constexpr char kUsbMidiStringDescriptor[] = "Kinoshi-Tiny Key 25"; // TODO: bug? long desciptor stops USB functionality. should investigate.
 
-// MIDI configuration
-enum
-{
-    kMidiChannel = 1,  // TODO: make it configurable via NRPN
-};
-
 // Pitch Bend configuration
 constexpr int pitch_bend_time = 250; // ms to reach from center to max/min TODO: make it configurable via NRPN
 
