@@ -8,7 +8,7 @@
 
 #include <pico/stdlib.h>
 #include "application.h"
-#include "DeviceConfig.h"
+#include "device_config.h"
 using namespace kinoshita_lab::kinoshi_tiny_key_25;
 
 // timer callbacks

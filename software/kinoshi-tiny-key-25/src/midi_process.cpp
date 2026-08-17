@@ -8,7 +8,7 @@
 #include "MIDI.h"
 #include <Adafruit_TinyUSB.h>
 #include "midi_process.h"
-#include "DeviceConfig.h"
+#include "device_config.h"
 
 namespace kinoshita_lab::kinoshi_tiny_key_25::midi_process
 {

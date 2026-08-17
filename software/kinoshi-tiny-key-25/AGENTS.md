@@ -44,7 +44,7 @@ Notes:
 | `src/switch.hpp` | 3-chain active-low switch scanner |
 | `src/leds.{h,cpp}` | Octave display LED logic |
 | `src/midi_process.{h,cpp}` | Dual MIDI output: USB MIDI + Serial2 |
-| `src/DeviceConfig.h` | USB descriptors, MIDI config, octave range, LED colors |
+| `src/device_config.h` | USB descriptors, MIDI config, octave range, LED colors |
 | `src/pins.h` | Pin assignments (source of truth for GPIO mapping) |
 | `MIDI_Implementation.txt` | MIDI implementation chart |
 | `.clang-format` | Formatting rules |

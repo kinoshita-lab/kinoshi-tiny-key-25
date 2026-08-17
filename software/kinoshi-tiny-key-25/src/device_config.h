@@ -1,5 +1,5 @@
 /**
- * @file	DeviceConfig.h
+ * @file	device_config.h
  * @brief   configuration and constants for Tiny KinoKey 25
  * @author Kazuki Saita <saita@kinoshita-lab.com>
  * Copyright (c) 2025 Kinoshita Laboratory All rights reserved.

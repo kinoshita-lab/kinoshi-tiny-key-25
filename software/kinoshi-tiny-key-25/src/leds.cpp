@@ -7,7 +7,7 @@
 #include "FastLED.h"
 #include "leds.h"
 #include "pins.h"
-#include "DeviceConfig.h"
+#include "device_config.h"
 namespace
 {
 CRGB oct_led[1];

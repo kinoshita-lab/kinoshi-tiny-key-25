@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "application.h"
 #include "leds.h"
-#include "DeviceConfig.h"
+#include "device_config.h"
 #include "switch.hpp"
 #include "midi_process.h"
 #include "pins.h"
