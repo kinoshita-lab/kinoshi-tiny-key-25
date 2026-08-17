@@ -8,7 +8,7 @@
 
 #include <pico/stdlib.h>
 #include "application.h"
-#include "config.h"
+#include "DeviceConfig.h"
 using namespace kinoshita_lab::kinoshi_tiny_key_25;
 
 // timer callbacks
@@ -25,7 +25,7 @@ void setup()
 
     application::initialize();
     // start timer
-    add_repeating_timer_us(config::kApplicationTimerIntervalUs, timer_callback, NULL, &timer);
+    add_repeating_timer_us(device_config::kApplicationTimerIntervalUs, timer_callback, NULL, &timer);
 
 }
 

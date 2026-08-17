@@ -8,7 +8,7 @@
 #include "MIDI.h"
 #include <Adafruit_TinyUSB.h>
 #include "midi_process.h"
-#include "config.h"
+#include "DeviceConfig.h"
 
 namespace kinoshita_lab::kinoshi_tiny_key_25::midi_process
 {
@@ -21,14 +21,14 @@ MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, MIDI_Serial);
 void initialize()
 {
     // Manual begin() is required on core without built-in support e.g. mbed rp2040
-    TinyUSBDevice.setManufacturerDescriptor(config::kUsbManufacturerString);
-    TinyUSBDevice.setProductDescriptor(config::kUsbProductDescriptor);
-    TinyUSBDevice.setSerialDescriptor(config::kUsbSerialDescriptor);
+    TinyUSBDevice.setManufacturerDescriptor(device_config::kUsbManufacturerString);
+    TinyUSBDevice.setProductDescriptor(device_config::kUsbProductDescriptor);
+    TinyUSBDevice.setSerialDescriptor(device_config::kUsbSerialDescriptor);
     if (!TinyUSBDevice.isInitialized()) {
         TinyUSBDevice.begin(0);
     }
 
-    usb_midi.setStringDescriptor(config::kUsbMidiStringDescriptor);
+    usb_midi.setStringDescriptor(device_config::kUsbMidiStringDescriptor);
 
     MIDI_USB.begin(MIDI_CHANNEL_OMNI);
     MIDI_USB.setThruFilterMode(midi::Thru::Off);

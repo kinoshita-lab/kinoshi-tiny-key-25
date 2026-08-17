@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "application.h"
 #include "leds.h"
-#include "config.h"
+#include "DeviceConfig.h"
 #include "switch.hpp"
 #include "midi_process.h"
 #include "pins.h"
@@ -27,26 +27,26 @@ switches::Switches switches_(pins::kPinPl, pins::kPinCp, pins::kPinSerialOut1, p
 struct Status
 {
     bool timer_fired            = false;
-    int current_octave          = config::kDefaultOctave;
+    int current_octave          = device_config::kDefaultOctave;
     uint8_t noteon_velocity     = INT8_MAX;
     int16_t pitch_bend_value    = 0;  // center
     int pitch_bend_direction    = 0;  // -1, 0, 1
     bool should_send_pitch_bend = false;
-    const float pitch_bend_step = (8192.f / (config::pitch_bend_time / 1000.f)) / (1000.f * 1000.f / config::kApplicationTimerIntervalUs);  // per timer tick
+    const float pitch_bend_step = (8192.f / (device_config::pitch_bend_time / 1000.f)) / (1000.f * 1000.f / device_config::kApplicationTimerIntervalUs);  // per timer tick
     struct KeyboardStatus
     {
         bool shouldSend;
         bool offOn;
         int8_t noteOnNoteNumber = -1;  // MIDI note number for "Note On" event
     };
-    KeyboardStatus keyboard_status[config::kNumKeyboardKeys];
+    KeyboardStatus keyboard_status[device_config::kNumKeyboardKeys];
 };
 Status status_;
 
 void setOctaveWithDelta(const int delta)
 {
     const auto prev    = status_.current_octave;
-    const auto new_val = std::clamp<int>(prev + delta, config::kMinOctave, config::kMaxOctave);
+    const auto new_val = std::clamp<int>(prev + delta, device_config::kMinOctave, device_config::kMaxOctave);
     if (new_val == prev) {
         return;
     }
@@ -57,7 +57,7 @@ void setOctaveWithDelta(const int delta)
 }
 void initialize()
 {
-    status_.current_octave = config::kDefaultOctave;
+    status_.current_octave = device_config::kDefaultOctave;
     // initial switch read
     switches_.forceScan();
 
@@ -95,7 +95,7 @@ void timerFired()
 
 void processKeyboard()
 {
-    for (auto i = 0; i < config::kNumKeyboardKeys; ++i) {
+    for (auto i = 0; i < device_config::kNumKeyboardKeys; ++i) {
         if (status_.keyboard_status[i].shouldSend) {
             status_.keyboard_status[i].shouldSend = false;
             if (status_.keyboard_status[i].offOn) {
@@ -103,15 +103,15 @@ void processKeyboard()
                 constexpr int num_note_per_octave           = 12;
                 const auto on_note_number                   = (status_.current_octave + 1) * num_note_per_octave + i;
                 status_.keyboard_status[i].noteOnNoteNumber = on_note_number;
-                midi_process::sendNoteOn(on_note_number, status_.noteon_velocity, config::kMidiChannel);
+                midi_process::sendNoteOn(on_note_number, status_.noteon_velocity, device_config::kMidiChannel);
                 Serial.printf("Note On sent: note=%d, velocity=%d, channel=%d\n",
-                              on_note_number, status_.noteon_velocity, config::kMidiChannel);
+                              on_note_number, status_.noteon_velocity, device_config::kMidiChannel);
             } else {  // off
                 const auto off_note_number = status_.keyboard_status[i].noteOnNoteNumber;
                 if (off_note_number >= 0) {
-                    midi_process::sendNoteOff(off_note_number, 0, config::kMidiChannel);
+                    midi_process::sendNoteOff(off_note_number, 0, device_config::kMidiChannel);
                     Serial.printf("Note Off sent: note=%d, velocity=0, channel=%d\n",
-                                  off_note_number, config::kMidiChannel);
+                                  off_note_number, device_config::kMidiChannel);
                     status_.keyboard_status[i].noteOnNoteNumber = -1;
                 }
             }
@@ -131,10 +131,10 @@ void switchStateChanged(uint32_t switch_index, const int off_on)
         }
             return;
         case switches::Switches::kSwitchIdSustain:
-            midi_process::sendSustain(off_on != 0, config::kMidiChannel);
+            midi_process::sendSustain(off_on != 0, device_config::kMidiChannel);
             return;
         case switches::Switches::kSwitchIdModulation:
-            midi_process::sendMoulation(off_on != 0, config::kMidiChannel);
+            midi_process::sendMoulation(off_on != 0, device_config::kMidiChannel);
             return;
         case switches::Switches::kSwitchIdPitchBendPlus:
             status_.pitch_bend_direction   = off_on ? 1 : 0;
@@ -184,7 +184,7 @@ void processPitchBend()
         status_.pitch_bend_value = 0;  // reset to center when stopped
     }
 
-    midi_process::sendPitchBend(status_.pitch_bend_value, config::kMidiChannel);
+    midi_process::sendPitchBend(status_.pitch_bend_value, device_config::kMidiChannel);
 }
 
 void processTimerTick()
@@ -194,4 +194,4 @@ void processTimerTick()
     }
     status_.timer_fired = false;
 }
-}  // namespace kinoshita_lab::tiny_kino_key_25::application
+}  // namespace kinoshita_lab::kinoshi_tiny_key_25::application

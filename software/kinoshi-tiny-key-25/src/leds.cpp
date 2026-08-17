@@ -7,7 +7,7 @@
 #include "FastLED.h"
 #include "leds.h"
 #include "pins.h"
-#include "config.h"
+#include "DeviceConfig.h"
 namespace
 {
 CRGB oct_led[1];
@@ -24,11 +24,11 @@ void initialize()
 
 void setOctaveLed(const int octave)
 { 
-    if (octave < config::kMinOctave || octave > config::kMaxOctave) {
+    if (octave < device_config::kMinOctave || octave > device_config::kMaxOctave) {
         return;
     }
-    const auto index = octave - config::kMinOctave;
-    const auto& c   = config::kOctaveColors[index];
+    const auto index = octave - device_config::kMinOctave;
+    const auto& c   = device_config::kOctaveColors[index];
     oct_led[0].setRGB(c.r, c.g, c.b);
     FastLED.show();
 }

@@ -1,16 +1,16 @@
 /**
- * @file	config.h
+ * @file	DeviceConfig.h
  * @brief   configuration and constants for Tiny KinoKey 25
  * @author Kazuki Saita <saita@kinoshita-lab.com>
  * Copyright (c) 2025 Kinoshita Laboratory All rights reserved.
  */
 #pragma once
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef DEVICE_CONFIG_H
+#define DEVICE_CONFIG_H
 
 #include <cstdint>
 #include "leds.h"
-namespace kinoshita_lab::kinoshi_tiny_key_25::config
+namespace kinoshita_lab::kinoshi_tiny_key_25::device_config
 {
 // USB configuration
 constexpr char kUsbManufacturerString[]   = "Kinoshita Laboratory";
@@ -37,11 +37,6 @@ enum
     kNumOctaves      = (kMaxOctave - kMinOctave + 1),
 };
 
-enum
-{
-    kNumKeys = 25,
-};
-
 // application timer configuration
 constexpr uint32_t kApplicationTimerIntervalUs = 500; // 500us
 
@@ -62,4 +57,4 @@ constexpr leds::Color kOctaveColors[kNumOctaves] = {
 };
 }
 
-#endif  // CONFIG_H
+#endif  // DEVICE_CONFIG_H
