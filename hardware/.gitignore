@@ -44,3 +44,5 @@ fp-info-cache
 *.lck
 
 jlcpcb/
+.history/
+
