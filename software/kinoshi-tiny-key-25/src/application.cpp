@@ -58,6 +58,15 @@ void setOctaveWithDelta(const int delta)
 }
 void initialize()
 {
+    const auto config_loaded = user_config::load();
+    Serial.printf("User config %s: midi_channel=%d\n",
+                  config_loaded ? "loaded from flash" : "reset to defaults",
+                  user_config::config.midi_channel);
+
+    if (!config_loaded) {
+        user_config::save();
+    }
+
     status_.current_octave = device_config::kDefaultOctave;
     // initial switch read
     switches_.forceScan();

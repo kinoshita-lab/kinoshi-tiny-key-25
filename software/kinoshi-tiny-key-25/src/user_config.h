@@ -25,6 +25,9 @@ struct UserConfig
 };
 
 inline UserConfig config;
+
+bool load();
+bool save();
 }  // namespace kinoshita_lab::kinoshi_tiny_key_25::user_config
 
 #endif  // USER_CONFIG_H
