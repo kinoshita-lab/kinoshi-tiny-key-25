@@ -58,31 +58,43 @@ void setOctaveWithDelta(const int delta)
 }
 void initialize()
 {
-    const auto config_loaded = user_config::load();
-    Serial.printf("User config %s: midi_channel=%d\n",
-                  config_loaded ? "loaded from flash" : "reset to defaults",
-                  user_config::config.midi_channel);
-
-    if (!config_loaded) {
-        user_config::save();
-    }
-
+    leds::initialize();
     status_.current_octave = device_config::kDefaultOctave;
     // initial switch read
     switches_.forceScan();
 
-    // read switch status whether to enter update mode
-    auto in_update_mode = switches_.switchIsOn(switches::Switches::kSwitchIdModulation) &&
-                          switches_.switchIsOn(switches::Switches::kSwitchIdOctMinus);
+    // read switch status for boot combos
+    const auto modulation_on = switches_.switchIsOn(switches::Switches::kSwitchIdModulation);
+    const auto oct_minus_on  = switches_.switchIsOn(switches::Switches::kSwitchIdOctMinus);
+    const auto oct_plus_on   = switches_.switchIsOn(switches::Switches::kSwitchIdOctPlus);
 
-    if (in_update_mode) {
-        // enter update mode
-        reset_usb_boot(0,0);
+    if (modulation_on && oct_minus_on && oct_plus_on) {
+        // all three pressed: invalid combination, boot normally
+        Serial.printf("Invalid boot combo ignored\n");
+    } else if (modulation_on && oct_minus_on) {
+        // update mode: blink blue, then enter UF2 boot mode
+        leds::blink(device_config::kUpdateModeBlinkColor, device_config::kStatusBlinkCount,
+                    device_config::kStatusBlinkIntervalMs);
+        reset_usb_boot(0, 0);
         return;
+    } else if (oct_minus_on && oct_plus_on) {
+        // factory reset: blink red, then clear user config
+        leds::blink(device_config::kFactoryResetBlinkColor, device_config::kStatusBlinkCount,
+                    device_config::kStatusBlinkIntervalMs);
+        user_config::reset();
+        Serial.printf("Factory reset: user config cleared, midi_channel=%d\n",
+                      user_config::config.midi_channel);
+    } else {
+        const auto config_loaded = user_config::load();
+        Serial.printf("User config %s: midi_channel=%d\n",
+                      config_loaded ? "loaded from flash" : "reset to defaults",
+                      user_config::config.midi_channel);
+        if (!config_loaded) {
+            user_config::save();
+        }
     }
 
     switches_.setHandler(switchStateChanged);
-    leds::initialize();
     leds::setOctaveLed(status_.current_octave);
     midi_process::initialize();
 }

@@ -91,4 +91,10 @@ bool save()
     EEPROM.put(kEepromAddress, stored);
     return EEPROM.commit();
 }
+
+bool reset()
+{
+    config = UserConfig{};
+    return save();
+}
 }  // namespace kinoshita_lab::kinoshi_tiny_key_25::user_config

@@ -32,4 +32,16 @@ void setOctaveLed(const int octave)
     oct_led[0].setRGB(c.r, c.g, c.b);
     FastLED.show();
 }
+
+void blink(const Color& color, const int count, const uint32_t interval_ms)
+{
+    for (auto i = 0; i < count; ++i) {
+        oct_led[0].setRGB(color.r, color.g, color.b);
+        FastLED.show();
+        delay(interval_ms);
+        oct_led[0].setRGB(0, 0, 0);
+        FastLED.show();
+        delay(interval_ms);
+    }
+}
 }

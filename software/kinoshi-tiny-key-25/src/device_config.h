@@ -49,6 +49,12 @@ constexpr leds::Color kOctaveColors[kNumOctaves] = {
     {0xff, 0xff, 0xff},  // 9  white
 
 };
+
+// status indication for boot combos
+constexpr leds::Color kUpdateModeBlinkColor   = {0x00, 0x00, 0xb0};  // blue
+constexpr leds::Color kFactoryResetBlinkColor = {0xb0, 0x00, 0x00};  // red
+constexpr int kStatusBlinkCount               = 5;
+constexpr uint32_t kStatusBlinkIntervalMs     = 125;  // ms per on/off phase
 }
 
 #endif  // DEVICE_CONFIG_H

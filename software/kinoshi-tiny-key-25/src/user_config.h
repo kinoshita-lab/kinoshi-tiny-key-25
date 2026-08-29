@@ -28,6 +28,9 @@ inline UserConfig config;
 
 bool load();
 bool save();
+
+/// Resets config to defaults and saves to flash. Returns true on success.
+bool reset();
 }  // namespace kinoshita_lab::kinoshi_tiny_key_25::user_config
 
 #endif  // USER_CONFIG_H

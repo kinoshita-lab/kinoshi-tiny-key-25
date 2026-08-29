@@ -27,6 +27,9 @@ enum
 void initialize();
 
 void setOctaveLed(const int octave);
+
+/// Blinks the octave LED with the given color. Blocking call (uses delay()).
+void blink(const Color& color, int count, uint32_t interval_ms);
 } // namespace kinoshita_lab::tiny_kino_key_25::leds
 
 #endif // LEDS_H
