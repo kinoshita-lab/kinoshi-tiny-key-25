@@ -46,3 +46,5 @@ fp-info-cache
 jlcpcb/
 .history/
 
+fabrication-toolkit-options.json
+production/
