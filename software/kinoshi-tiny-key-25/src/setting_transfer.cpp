@@ -73,6 +73,7 @@ constexpr Parameter kParameters[] = {
 // clang-format on
 
 SettingsChangedHandler settings_changed_handler_ = nullptr;
+TransferStartedHandler transfer_started_handler_ = nullptr;
 
 // NRPN parameter currently addressed by the editor (cleared by RPN Null).
 int16_t nrpn_msb_ = kNoParameterNumber;
@@ -115,6 +116,9 @@ void handleSystemCommand(const uint8_t lsb, const uint8_t value)
         } break;
         case kTransferStartLsb:
             Serial.printf("Setting transfer started\n");
+            if (transfer_started_handler_) {
+                transfer_started_handler_();
+            }
             break;
         default:
             break;
@@ -142,9 +146,10 @@ void applyParameter(const uint8_t msb, const uint8_t lsb, const uint8_t value)
 }
 }  // namespace
 
-void initialize(SettingsChangedHandler handler)
+void initialize(SettingsChangedHandler settings_changed_handler, TransferStartedHandler transfer_started_handler)
 {
-    settings_changed_handler_ = handler;
+    settings_changed_handler_ = settings_changed_handler;
+    transfer_started_handler_ = transfer_started_handler;
     nrpn_msb_                 = kNoParameterNumber;
     nrpn_lsb_                 = kNoParameterNumber;
     midi_process::setUsbControlChangeHandler(handleControlChange);

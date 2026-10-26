@@ -4,8 +4,8 @@
  * @author Kazuki Saita <saita@kinoshita-lab.com>
  * Copyright (c) 2026 Kinoshita Laboratory All rights reserved.
  *
- * Implements the setting data of the kinoshi-tiny-key 25 MIDI Implementation
- * (kinoshi-tiny-key-25-editor/docs/midi-implementation.txt).
+ * Implements the setting data of the Kinoshi-Tiny Key 25 MIDI Implementation
+ * (MIDI_Implementation.txt).
  * Setting data is received and transmitted on USB MIDI, channel 1 only.
  */
 #pragma once
@@ -18,9 +18,11 @@ namespace kinoshita_lab::kinoshi_tiny_key_25::setting_transfer
 {
 // Called after a setting value has been changed by the editor.
 using SettingsChangedHandler = void (*)();
+// Called when the editor starts transmitting settings (TRANSFER START).
+using TransferStartedHandler = void (*)();
 
 /// Registers the USB MIDI receive handler.
-void initialize(SettingsChangedHandler handler);
+void initialize(SettingsChangedHandler settings_changed_handler, TransferStartedHandler transfer_started_handler);
 
 /// Feeds a Control Change received on USB MIDI.
 void handleControlChange(uint8_t channel, uint8_t number, uint8_t value);

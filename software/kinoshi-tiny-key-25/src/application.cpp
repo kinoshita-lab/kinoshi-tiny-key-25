@@ -100,6 +100,25 @@ void settingsChanged()
         status_.should_send_pitch_bend = true;  // return to center
     }
 }
+
+// Called when the editor starts transmitting settings.
+void transferStarted()
+{
+    // the receiver is silenced and reset below, so forget everything held
+    for (auto& key : status_.keyboard_status) {
+        key.noteOnNoteNumber = -1;
+    }
+    for (auto& toggle_on : status_.button_toggle_on) {
+        toggle_on = false;
+    }
+    status_.pitch_bend_direction   = 0;
+    status_.pitch_bend_value       = 0;
+    status_.should_send_pitch_bend = false;
+
+    midi_process::sendAllNotesOff();
+    midi_process::sendResetAllControllers();
+    Serial.printf("All Notes Off / Reset All Controllers sent\n");
+}
 }
 void initialize()
 {
@@ -141,7 +160,7 @@ void initialize()
     switches_.setHandler(switchStateChanged);
     leds::setOctaveLed(status_.current_octave);
     midi_process::initialize();
-    setting_transfer::initialize(settingsChanged);
+    setting_transfer::initialize(settingsChanged, transferStarted);
 }
 
 void timerFired()

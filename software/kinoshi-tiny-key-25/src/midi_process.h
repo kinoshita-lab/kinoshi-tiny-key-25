@@ -26,6 +26,8 @@ void sendNoteOn(uint8_t note, uint8_t velocity);
 void sendNoteOff(uint8_t note, uint8_t velocity);
 void sendControlChange(uint8_t number, uint8_t value);
 void sendPitchBend(int16_t value);
+void sendAllNotesOff();
+void sendResetAllControllers();
 
 // Sends a Control Change to USB MIDI only (used for setting data).
 void sendUsbControlChange(uint8_t number, uint8_t value, uint8_t channel);

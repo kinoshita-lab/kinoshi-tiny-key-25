@@ -115,6 +115,16 @@ void sendPitchBend(int16_t value)
         MIDI_Serial.sendPitchBend(value, config.trs_midi_channel);
     }
 }
+void sendAllNotesOff()
+{
+    constexpr uint8_t kCcAllNotesOff = 0x7b;
+    sendControlChange(kCcAllNotesOff, 0);
+}
+void sendResetAllControllers()
+{
+    constexpr uint8_t kCcResetAllControllers = 0x79;
+    sendControlChange(kCcResetAllControllers, 0);
+}
 void sendUsbControlChange(uint8_t number, uint8_t value, uint8_t channel)
 {
     if (number > 127 || value > 127 || !isValidChannel(channel)) {
