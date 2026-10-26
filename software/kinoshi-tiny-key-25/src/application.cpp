@@ -13,6 +13,7 @@
 #include "midi_process.h"
 #include "pins.h"
 #include "user_config.h"
+#include "setting_transfer.h"
 
 extern "C" {
 #include "pico/bootrom.h"
@@ -22,6 +23,14 @@ namespace kinoshita_lab::kinoshi_tiny_key_25::application
 {
 namespace
 {
+enum ButtonIndex
+{
+    kButtonMod,
+    kButtonPitchUp,
+    kButtonPitchDown,
+    kButtonSustain,
+    kNumButtons,
+};
 
 switches::Switches switches_(pins::kPinPl, pins::kPinCp, pins::kPinSerialOut1, pins::kPinSerialOut2, pins::kPinSerialOut3, nullptr);
 
@@ -29,7 +38,6 @@ struct Status
 {
     bool timer_fired            = false;
     int current_octave          = device_config::kDefaultOctave;
-    uint8_t noteon_velocity     = INT8_MAX;
     int16_t pitch_bend_value    = 0;  // center
     int pitch_bend_direction    = 0;  // -1, 0, 1
     bool should_send_pitch_bend = false;
@@ -41,6 +49,7 @@ struct Status
         int8_t noteOnNoteNumber = -1;  // MIDI note number for "Note On" event
     };
     KeyboardStatus keyboard_status[device_config::kNumKeyboardKeys];
+    bool button_toggle_on[kNumButtons] = {};  // current state of toggle mode buttons
 };
 Status status_;
 
@@ -54,6 +63,42 @@ void setOctaveWithDelta(const int delta)
     Serial.printf("Octave changed: %d -> %d\n", prev, new_val);
     leds::setOctaveLed(new_val);
     status_.current_octave = new_val;
+}
+
+void handleCcButton(const ButtonIndex index, const user_config::ButtonConfig& button, const bool pressed)
+{
+    if (button.mode == user_config::kButtonModeToggle) {
+        if (!pressed) {
+            return;  // toggle mode sends nothing on release
+        }
+        status_.button_toggle_on[index] = !status_.button_toggle_on[index];
+        midi_process::sendControlChange(button.cc_number, status_.button_toggle_on[index] ? button.on_value : button.off_value);
+        return;
+    }
+    midi_process::sendControlChange(button.cc_number, pressed ? button.on_value : button.off_value);
+}
+
+void handlePitchButton(const ButtonIndex index, const user_config::ButtonConfig& button, const int direction, const bool pressed)
+{
+    if (button.function == user_config::kButtonFunctionCc) {
+        handleCcButton(index, button, pressed);
+        return;
+    }
+    status_.pitch_bend_direction   = pressed ? direction : 0;
+    status_.should_send_pitch_bend = true;  // send immediately
+}
+
+// Called when the editor changed a setting.
+void settingsChanged()
+{
+    // a button may have changed its function or mode while held: start over from released state
+    for (auto& toggle_on : status_.button_toggle_on) {
+        toggle_on = false;
+    }
+    if (status_.pitch_bend_direction != 0 || status_.pitch_bend_value != 0) {
+        status_.pitch_bend_direction   = 0;
+        status_.should_send_pitch_bend = true;  // return to center
+    }
 }
 }
 void initialize()
@@ -82,13 +127,12 @@ void initialize()
         leds::blink(device_config::kFactoryResetBlinkColor, device_config::kStatusBlinkCount,
                     device_config::kStatusBlinkIntervalMs);
         user_config::reset();
-        Serial.printf("Factory reset: user config cleared, midi_channel=%d\n",
-                      user_config::config.midi_channel);
+        Serial.printf("Factory reset: user config cleared\n");
     } else {
         const auto config_loaded = user_config::load();
-        Serial.printf("User config %s: midi_channel=%d\n",
+        Serial.printf("User config %s: usb_midi_channel=%d, trs_midi_channel=%d\n",
                       config_loaded ? "loaded from flash" : "reset to defaults",
-                      user_config::config.midi_channel);
+                      user_config::config.usb_midi_channel, user_config::config.trs_midi_channel);
         if (!config_loaded) {
             user_config::save();
         }
@@ -97,6 +141,7 @@ void initialize()
     switches_.setHandler(switchStateChanged);
     leds::setOctaveLed(status_.current_octave);
     midi_process::initialize();
+    setting_transfer::initialize(settingsChanged);
 }
 
 void timerFired()
@@ -125,15 +170,14 @@ void processKeyboard()
                 constexpr int num_note_per_octave           = 12;
                 const auto on_note_number                   = (status_.current_octave + 1) * num_note_per_octave + i;
                 status_.keyboard_status[i].noteOnNoteNumber = on_note_number;
-                midi_process::sendNoteOn(on_note_number, status_.noteon_velocity, user_config::config.midi_channel);
-                Serial.printf("Note On sent: note=%d, velocity=%d, channel=%d\n",
-                              on_note_number, status_.noteon_velocity, user_config::config.midi_channel);
+                const auto velocity                         = user_config::config.velocity;
+                midi_process::sendNoteOn(on_note_number, velocity);
+                Serial.printf("Note On sent: note=%d, velocity=%d\n", on_note_number, velocity);
             } else {  // off
                 const auto off_note_number = status_.keyboard_status[i].noteOnNoteNumber;
                 if (off_note_number >= 0) {
-                    midi_process::sendNoteOff(off_note_number, 0, user_config::config.midi_channel);
-                    Serial.printf("Note Off sent: note=%d, velocity=0, channel=%d\n",
-                                  off_note_number, user_config::config.midi_channel);
+                    midi_process::sendNoteOff(off_note_number, 0);
+                    Serial.printf("Note Off sent: note=%d, velocity=0\n", off_note_number);
                     status_.keyboard_status[i].noteOnNoteNumber = -1;
                 }
             }
@@ -153,18 +197,16 @@ void switchStateChanged(uint32_t switch_index, const int off_on)
         }
             return;
         case switches::Switches::kSwitchIdSustain:
-            midi_process::sendSustain(off_on != 0, user_config::config.midi_channel);
+            handleCcButton(kButtonSustain, user_config::config.sustain, off_on != 0);
             return;
         case switches::Switches::kSwitchIdModulation:
-            midi_process::sendMoulation(off_on != 0, user_config::config.midi_channel);
+            handleCcButton(kButtonMod, user_config::config.mod, off_on != 0);
             return;
         case switches::Switches::kSwitchIdPitchBendPlus:
-            status_.pitch_bend_direction   = off_on ? 1 : 0;
-            status_.should_send_pitch_bend = true;  // send immediately
+            handlePitchButton(kButtonPitchUp, user_config::config.pitch_up, 1, off_on != 0);
             return;
         case switches::Switches::kSwitchIdPitchBendMinus:
-            status_.pitch_bend_direction   = off_on ? -1 : 0;
-            status_.should_send_pitch_bend = true;  // send immediately
+            handlePitchButton(kButtonPitchDown, user_config::config.pitch_down, -1, off_on != 0);
             return;
         default:
             break;
@@ -206,7 +248,7 @@ void processPitchBend()
         status_.pitch_bend_value = 0;  // reset to center when stopped
     }
 
-    midi_process::sendPitchBend(status_.pitch_bend_value, user_config::config.midi_channel);
+    midi_process::sendPitchBend(status_.pitch_bend_value);
 }
 
 void processTimerTick()

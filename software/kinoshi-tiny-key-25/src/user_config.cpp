@@ -6,6 +6,7 @@
  */
 #include <Arduino.h>
 #include <EEPROM.h>
+#include <type_traits>
 
 #include "user_config.h"
 
@@ -13,7 +14,7 @@ namespace kinoshita_lab::kinoshi_tiny_key_25::user_config
 {
 namespace
 {
-constexpr uint8_t kStorageVersion  = 1;
+constexpr uint8_t kStorageVersion  = 2;
 constexpr int kEepromAddress       = 0;
 constexpr size_t kEepromSize       = 256;
 
@@ -26,26 +27,44 @@ struct StoredConfig
     UserConfig payload;
 };
 
-uint8_t computeChecksum(const StoredConfig& stored)
-{
-    const uint8_t bytes[] = {
-        stored.version,
-        stored.payload.midi_channel,
-    };
+static_assert(std::is_trivially_copyable_v<UserConfig>, "UserConfig must be stored as raw bytes");
+static_assert(sizeof(StoredConfig) <= kEepromSize, "StoredConfig does not fit in EEPROM");
 
-    uint8_t checksum = 0;
-    for (const auto byte : bytes) {
-        checksum ^= byte;
-        for (int bit = 0; bit < 8; ++bit) {
-            if ((checksum & 0x80u) != 0u) {
-                checksum = static_cast<uint8_t>((checksum << 1) ^ 0x07u);
-            } else {
-                checksum = static_cast<uint8_t>(checksum << 1);
-            }
+uint8_t crc8Update(uint8_t checksum, const uint8_t byte)
+{
+    checksum ^= byte;
+    for (int bit = 0; bit < 8; ++bit) {
+        if ((checksum & 0x80u) != 0u) {
+            checksum = static_cast<uint8_t>((checksum << 1) ^ 0x07u);
+        } else {
+            checksum = static_cast<uint8_t>(checksum << 1);
         }
     }
-
     return checksum;
+}
+
+uint8_t computeChecksum(const StoredConfig& stored)
+{
+    uint8_t checksum = crc8Update(0, stored.version);
+    const auto* payload_bytes = reinterpret_cast<const uint8_t*>(&stored.payload);
+    for (size_t i = 0; i < sizeof(stored.payload); ++i) {
+        checksum = crc8Update(checksum, payload_bytes[i]);
+    }
+    return checksum;
+}
+
+bool isValidButton(const ButtonConfig& button)
+{
+    return (button.function == kButtonFunctionPitchBend || button.function == kButtonFunctionCc) &&
+           (button.mode == kButtonModeMomentary || button.mode == kButtonModeToggle) &&
+           button.cc_number <= kMaxDataValue &&
+           button.on_value <= kMaxDataValue &&
+           button.off_value <= kMaxDataValue;
+}
+
+bool isValidChannel(const uint8_t channel)
+{
+    return channel >= kMinMidiChannel && channel <= kMaxMidiChannel;
 }
 
 void ensureEepromBegan()
@@ -58,6 +77,17 @@ void ensureEepromBegan()
 }
 }  // namespace
 
+bool isValid(const UserConfig& candidate)
+{
+    return isValidChannel(candidate.usb_midi_channel) &&
+           isValidChannel(candidate.trs_midi_channel) &&
+           candidate.velocity >= kMinVelocity && candidate.velocity <= kMaxVelocity &&
+           isValidButton(candidate.mod) && candidate.mod.function == kButtonFunctionCc &&
+           isValidButton(candidate.pitch_up) &&
+           isValidButton(candidate.pitch_down) &&
+           isValidButton(candidate.sustain) && candidate.sustain.function == kButtonFunctionCc;
+}
+
 bool load()
 {
     ensureEepromBegan();
@@ -67,8 +97,7 @@ bool load()
 
     const bool valid = stored.version == kStorageVersion &&
                        stored.checksum == computeChecksum(stored) &&
-                       stored.payload.midi_channel >= kMinMidiChannel &&
-                       stored.payload.midi_channel <= kMaxMidiChannel;
+                       isValid(stored.payload);
 
     if (!valid) {
         config = UserConfig{};
