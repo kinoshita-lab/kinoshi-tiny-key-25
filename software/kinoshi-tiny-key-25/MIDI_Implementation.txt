@@ -1,4 +1,4 @@
-Kinoshi-Tiny Key 25 MIDI Implementation     Revision 0.13 (Oct. 26 2026)  DRAFT
+Kinoshi-Tiny Key 25 MIDI Implementation     Revision 0.14 (Oct. 26 2026)  DRAFT
 
 
 1.TRANSMITTED DATA
@@ -78,9 +78,11 @@ Kinoshi-Tiny Key 25 MIDI Implementation     Revision 0.13 (Oct. 26 2026)  DRAFT
  Setting data is always transmitted on MIDI Channel 1 (B0), regardless of the
  USB MIDI / TRS MIDI channel settings.
 
- *6 : mm,ll = Parameter (TABLE 1, TABLE 2)
-      vv    = Value     (TABLE 1, TABLE 2)
+ *6 : mm,ll = Parameter (TABLE 1, TABLE 2, TABLE 3)
+      vv    = Value     (TABLE 1, TABLE 2, TABLE 3)
       Transmitted when DUMP REQUEST is received. (2-2, SEQUENCE 2)
+      Firmware version (TABLE 3) is transmitted when VERSION REQUEST is received.
+      (SEQUENCE 3)
       ACK is transmitted when SAVE has been completed. (SEQUENCE 1)
 
 
@@ -198,10 +200,30 @@ Kinoshi-Tiny Key 25 MIDI Implementation     Revision 0.13 (Oct. 26 2026)  DRAFT
 |        |        |                               |         |      Transmits All Notes Off and |
 |        |        |                               |         |      Reset All Controllers (1-1) |
 +--------+--------+-------------------------------+---------+----------------------------------+
+|   60   |   05   | VERSION REQUEST               | R       | 00 : Transmits firmware version  |
+|        |        |                               |         |      (TABLE 3)                   |
++--------+--------+-------------------------------+---------+----------------------------------+
 
  R : Received,  T : Transmitted
  Commands with a value other than 00 are ignored.
  Parameters of TABLE 1 are accepted at any time, with or without TRANSFER START.
+
+
+ TABLE 3 : Device Information
++--------+--------+-------------------------------+---------+----------------------------------+
+| MSB[H] | LSB[H] |    PARAMETER                  | R/T     | VALUE/DESCRIPTION                |
++--------+--------+-------------------------------+---------+----------------------------------+
+|   61   |   00   | FIRMWARE VERSION MAJOR        | T       | 00~7F = 0~127                    |
+|   61   |   01   | FIRMWARE VERSION MINOR        | T       | 00~7F = 0~127                    |
+|   61   |   02   | FIRMWARE VERSION PATCH        | T       | 00~7F = 0~127                    |
++--------+--------+-------------------------------+---------+----------------------------------+
+
+ The firmware version follows Semantic Versioning (MAJOR.MINOR.PATCH).
+ Transmitted in the order of this table. Received values are ignored.
+ Example : Version 1.1.0
+           B0,63,61, B0,62,00, B0,06,01, B0,65,7F, B0,64,7F,
+           B0,63,61, B0,62,01, B0,06,01, B0,65,7F, B0,64,7F,
+           B0,63,61, B0,62,02, B0,06,00, B0,65,7F, B0,64,7F
 
 
 4.SETTING SEQUENCE
@@ -228,3 +250,11 @@ SEQUENCE 2 : Receive settings from the device (Device -> Editor)
  (4) When DUMP COMPLETE is received and all 21 parameters are received,
      the editor applies them. Otherwise (or on timeout) the editor shows an error
      and keeps the current settings.
+
+SEQUENCE 3 : Get the firmware version (Device -> Editor)
+
+ (1) Editor transmits VERSION REQUEST (60,05,00).
+ (2) The device transmits FIRMWARE VERSION MAJOR, MINOR and PATCH (TABLE 3)
+     in table order.
+ (3) When all three values are received, the editor shows the version.
+     Otherwise (on timeout) the editor shows an error.

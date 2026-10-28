@@ -7,6 +7,7 @@
 #include <Arduino.h>
 
 #include "setting_transfer.h"
+#include "device_config.h"
 #include "midi_process.h"
 #include "user_config.h"
 
@@ -31,6 +32,13 @@ constexpr uint8_t kDumpCompleteLsb   = 0x01;
 constexpr uint8_t kSaveLsb           = 0x02;
 constexpr uint8_t kAckLsb            = 0x03;
 constexpr uint8_t kTransferStartLsb  = 0x04;
+constexpr uint8_t kVersionRequestLsb = 0x05;
+
+// TABLE 3 : Device Information (transmit only)
+constexpr uint8_t kDeviceInfoMsb      = 0x61;
+constexpr uint8_t kVersionMajorLsb    = 0x00;
+constexpr uint8_t kVersionMinorLsb    = 0x01;
+constexpr uint8_t kVersionPatchLsb    = 0x02;
 constexpr int16_t kNoParameterNumber = -1;
 
 using user_config::UserConfig;
@@ -98,6 +106,15 @@ void sendDump()
     Serial.printf("Setting dump sent\n");
 }
 
+void sendVersion()
+{
+    sendParameter(kDeviceInfoMsb, kVersionMajorLsb, device_config::kFirmwareVersionMajor);
+    sendParameter(kDeviceInfoMsb, kVersionMinorLsb, device_config::kFirmwareVersionMinor);
+    sendParameter(kDeviceInfoMsb, kVersionPatchLsb, device_config::kFirmwareVersionPatch);
+    Serial.printf("Firmware version sent: %d.%d.%d\n", device_config::kFirmwareVersionMajor,
+                  device_config::kFirmwareVersionMinor, device_config::kFirmwareVersionPatch);
+}
+
 void handleSystemCommand(const uint8_t lsb, const uint8_t value)
 {
     if (value != 0x00) {
@@ -119,6 +136,9 @@ void handleSystemCommand(const uint8_t lsb, const uint8_t value)
             if (transfer_started_handler_) {
                 transfer_started_handler_();
             }
+            break;
+        case kVersionRequestLsb:
+            sendVersion();
             break;
         default:
             break;

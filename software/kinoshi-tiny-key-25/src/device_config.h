@@ -18,6 +18,11 @@ constexpr char kUsbProductDescriptor[]    = "Kinoshi-Tiny Key 25";
 constexpr char kUsbSerialDescriptor[]     = "0xdeadbeef";
 constexpr char kUsbMidiStringDescriptor[] = "Kinoshi-Tiny Key 25"; // TODO: bug? long desciptor stops USB functionality. should investigate.
 
+// Firmware version (semantic versioning). Each number must be 0-127 to fit in NRPN data.
+constexpr uint8_t kFirmwareVersionMajor = 1;
+constexpr uint8_t kFirmwareVersionMinor = 1;
+constexpr uint8_t kFirmwareVersionPatch = 0;
+
 // Pitch Bend configuration
 constexpr int pitch_bend_time = 250; // ms to reach from center to max/min TODO: make it configurable via NRPN
 
