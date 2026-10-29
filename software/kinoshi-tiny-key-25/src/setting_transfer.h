@@ -5,7 +5,7 @@
  * Copyright (c) 2026 Kinoshita Laboratory All rights reserved.
  *
  * Implements the setting data of the Kinoshi-Tiny Key 25 MIDI Implementation
- * (MIDI_Implementation.txt at the repository root).
+ * (MIDI_Implementation.md at the repository root).
  * Setting data is received and transmitted on USB MIDI, channel 1 only.
  */
 #pragma once

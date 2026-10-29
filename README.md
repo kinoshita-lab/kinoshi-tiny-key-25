@@ -8,7 +8,7 @@
 
 ## What is this?
 
-- A small MIDI controller, 106 mm x 50 mm.
+- A small MIDI keyboard, 106 mm x 50 mm.
 - Has USB MIDI (In/Out) and legacy MIDI (Out, 3.5 mm Type A).
 - It has:
   - Octave switches +/-
@@ -17,7 +17,7 @@
   - Sustain switch
 
 - The source code and schematics are open. You can change them as you need.
-- More features are planned in future firmware updates.
+
 
 
 ## What's in the box
