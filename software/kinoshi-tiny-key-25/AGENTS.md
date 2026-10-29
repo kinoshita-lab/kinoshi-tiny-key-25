@@ -48,7 +48,7 @@ Notes:
 | `src/setting_transfer.{h,cpp}` | Setting transfer with the editor over NRPN (USB MIDI, channel 1) |
 | `src/device_config.h` | USB descriptors, MIDI config, octave range, LED colors |
 | `src/pins.h` | Pin assignments (source of truth for GPIO mapping) |
-| `MIDI_Implementation.txt` | MIDI implementation chart |
+| `../../MIDI_Implementation.txt` | MIDI implementation chart (repository root) |
 | `.clang-format` | Formatting rules |
 | `test/` | Empty stub; no project tests are present yet |
 
