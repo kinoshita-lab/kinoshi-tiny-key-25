@@ -27,3 +27,8 @@
 ## How to use
 - Power it with a USB Type-C cable. Connect it to a mobile battery, a PC/Mac, etc.
 - USB MIDI works with the standard OS driver. No extra driver is needed.
+
+## Settings editor
+- A web-browser-based editor lets you change the MIDI channels, velocity, button behavior and more.
+- https://kinoshi-tiny-key-25.editor.kinoshita-lab.com/
+- Requires firmware v1.1.0 or later.
